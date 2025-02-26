@@ -1,21 +1,142 @@
 @tailwind base;
+
 @tailwind components;
+
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 210 15% 98%;
+    /* Light, cool gray */
+    --foreground: 210 20% 10%;
+    /* Dark, cool gray */
+    --card: 210 15% 95%;
+    /* Slightly darker than background for depth */
+    --card-foreground: 210 20% 15%;
+    /* For text on cards */
+    --popover: 210 15% 98%;
+    /* Same as background for consistency */
+    --popover-foreground: 210 20% 10%;
+    /* Same as foreground */
+    --primary: 330 80% 55%;
+    /* A vibrant pink for primary interactions */
+    --primary-foreground: 0 0% 98%;
+    /* Light text on dark background */
+    --secondary: 240 10% 90%;
+    /* Soft blue-gray for secondary elements */
+    --secondary-foreground: 240 30% 10%;
+    /* Darker blue for contrast */
+    --muted: 240 10% 95%;
+    /* Very light, soft blue-gray */
+    --muted-foreground: 240 10% 40%;
+    /* Mid-tone blue for less prominent text */
+    --accent: 180 60% 80%;
+    /* A soft teal for accent */
+    --accent-foreground: 180 50% 15%;
+    /* Darker teal for text on accent */
+    --destructive: 0 70% 50%;
+    /* Bright red for errors or warnings */
+    --destructive-foreground: 0 0% 98%;
+    /* White text on red */
+    --border: 210 10% 90%;
+    /* Slightly darker than background for borders */
+    --input: 210 10% 90%;
+    /* Same as border for consistency */
+    --ring: 210 60% 50%;
+    /* Focus ring in a deep blue */
+    --chart-1: 30 90% 60%;
+    /* Warm orange */
+    --chart-2: 140 70% 45%;
+    /* Cool green */
+    --chart-3: 270 60% 55%;
+    /* Deep purple */
+    --chart-4: 60 80% 50%;
+    /* Bright yellow */
+    --chart-5: 200 80% 60%;
+    /* Sky blue */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 210 20% 10%;
+    /* Dark, cool gray for dark mode */
+    --foreground: 210 15% 98%;
+    /* Light text on dark background */
+    --card: 210 20% 15%;
+    /* Slightly lighter than background for depth */
+    --card-foreground: 210 15% 95%;
+    /* For text on dark cards */
+    --popover: 210 20% 10%;
+    /* Same as background for consistency */
+    --popover-foreground: 210 15% 98%;
+    /* Same as foreground */
+    --primary: 330 70% 65%;
+    /* Slightly less vibrant pink for dark mode */
+    --primary-foreground: 0 0% 10%;
+    /* Dark text on light background */
+    --secondary: 240 20% 20%;
+    /* Dark blue-gray for secondary elements */
+    --secondary-foreground: 240 20% 90%;
+    /* Light blue for contrast */
+    --muted: 240 20% 15%;
+    /* Dark, soft blue-gray */
+    --muted-foreground: 240 20% 60%;
+    /* Lighter blue for less prominent text */
+    --accent: 180 50% 30%;
+    /* Dark teal for accent */
+    --accent-foreground: 180 50% 90%;
+    /* Light teal for text on accent */
+    --destructive: 0 60% 40%;
+    /* Dark red for errors or warnings in dark mode */
+    --destructive-foreground: 0 0% 10%;
+    /* Dark text on red */
+    --border: 210 20% 20%;
+    /* Slightly lighter than background for borders */
+    --input: 210 20% 20%;
+    /* Same as border for consistency */
+    --ring: 210 50% 60%;
+    /* Focus ring in a lighter blue for dark mode */
+    --chart-1: 30 80% 50%;
+    /* Less vibrant orange */
+    --chart-2: 140 60% 40%;
+    /* Darker green */
+    --chart-3: 270 50% 45%;
+    /* Darker purple */
+    --chart-4: 60 70% 40%;
+    /* Darker yellow */
+    --chart-5: 200 70% 50%;
+    /* Darker sky blue */
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .pdf-viewer {
+    @apply flex flex-col items-center;
+  }
+  @media (max-width: 768px) {
+    .pdf-viewer .controls {
+      @apply flex-col gap-2;
+    }
+  }
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
