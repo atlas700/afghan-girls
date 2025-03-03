@@ -9,61 +9,78 @@ interface FeaturesProps {
 const featureList: FeaturesProps[] = [
   {
     icon: "TabletSmartphone",
-    title: "Mobile Friendly",
+    title: "Device Compatibility",
     description:
-      "Work on every type of device especially in mobile and tablet.",
+      "Seamlessly works across smartphones, tablets, and computers - learn on any device you have access to.",
   },
   {
-    icon: "BadgeCheck",
-    title: "Lessons",
-    description: "Clear, simple materials for every subject.",
-  },
-  {
-    icon: "Goal",
-    title: "Offline Access",
-    description: "Save content for use without internet.",
-  },
-  {
-    icon: "PictureInPicture",
-    title: "Strong Visuals",
+    icon: "BookOpen",
+    title: "Interactive Lessons",
     description:
-      "Everything is clear and made simple for better understanding.",
+      "Engaging, structured lessons with clear explanations for all core subjects from grades 7-12.",
   },
   {
-    icon: "MousePointerClick",
-    title: "Quizzes",
-    description: "Test your knowledge and track progress.",
+    icon: "Download",
+    title: "Offline Learning",
+    description:
+      "Download entire courses to continue learning without internet access - perfect for areas with limited connectivity.",
   },
   {
-    icon: "Newspaper",
-    title: "AI Chat",
-    description: "Chat with any book by AI to learn deep.",
+    icon: "ImagePlus",
+    title: "Visual Learning",
+    description:
+      "Rich illustrations, diagrams, and visual aids that simplify complex concepts for better comprehension.",
+  },
+  {
+    icon: "CheckCircle",
+    title: "Self-Assessment",
+    description:
+      "Practice quizzes and tests with instant feedback to reinforce learning and track your progress.",
+  },
+  {
+    icon: "MessageSquareText",
+    title: "AI Study Assistant",
+    description:
+      "Ask questions about any lesson or textbook and receive helpful explanations from our AI tutor.",
+  },
+  {
+    icon: "Calendar",
+    title: "Structured Curriculum",
+    description:
+      "Organized by grade level and subject with clear learning paths to follow your educational journey.",
+  },
+  {
+    icon: "Shield",
+    title: "Privacy-Focused",
+    description:
+      "No account required, no data collection - your learning stays private and secure.",
   },
 ];
 
 export const FeaturesSection = () => {
   return (
-    <section id="features" className="container py-24 sm:py-32">
+    <section id="features" className="container py-24 sm:py-32 bg-muted/30">
       <h2 className="text-lg text-primary text-center mb-2 tracking-wider">
         Features
       </h2>
 
       <h2 className="text-3xl md:text-4xl text-center font-bold mb-4">
-        Everything You Need to Learn
+        Your Complete Learning Toolkit
       </h2>
 
-      <h3 className="md:w-1/2 mx-auto text-xl text-center text-muted-foreground mb-8">
-        Explore lessons tailored for grades 7-12. Download videos, PDFs, and
-        quizzes to study offline. No sign-up needed—just open and start
-        learning, privately and securely.
+      <h3 className="md:w-3/4 lg:w-1/2 mx-auto text-xl text-center text-muted-foreground mb-12">
+        Our platform provides everything you need for a complete educational
+        experience. Access comprehensive lessons, interactive materials, and
+        assessment tools designed specifically for grades 7-12 - all available
+        offline for uninterrupted learning.
       </h3>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {featureList.map(({ title, description }) => (
           <div key={title}>
-            <Card className="h-full bg-background border-0 shadow-none">
+            <Card className="h-full bg-background border-0 shadow-md hover:shadow-lg transition-shadow">
               <CardHeader className="flex justify-center items-center">
-                <div className="bg-primary/20 p-2 rounded-full ring-8 ring-primary/10 mb-4">
+                <div className="bg-primary/20 p-3 rounded-full ring-8 ring-primary/10 mb-4">
                   {/* <Icon
                     name={icon as keyof typeof icons}
                     size={24}
@@ -72,7 +89,7 @@ export const FeaturesSection = () => {
                   /> */}
                 </div>
 
-                <CardTitle>{title}</CardTitle>
+                <CardTitle className="text-center">{title}</CardTitle>
               </CardHeader>
 
               <CardContent className="text-muted-foreground text-center">

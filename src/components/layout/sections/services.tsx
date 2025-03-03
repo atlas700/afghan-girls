@@ -6,75 +6,113 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-enum ProService {
-  YES = 1,
-  NO = 0,
+enum SubjectLevel {
+  ADVANCED = 1,
+  STANDARD = 0,
 }
-interface ServiceProps {
+
+interface SubjectProps {
   title: string;
-  pro: ProService;
+  level: SubjectLevel;
   description: string;
+  icon?: string;
 }
-const serviceList: ServiceProps[] = [
+
+const subjectList: SubjectProps[] = [
   {
-    title: "Custom Domain Integration",
+    title: "Mathematics",
     description:
-      "Lorem ipsum dolor sit, amet consectetur adipisicing elit adipisicing.",
-    pro: 0,
+      "Algebra, geometry, and arithmetic with interactive exercises and step-by-step solutions.",
+    level: 0,
+    icon: "Calculator",
   },
   {
-    title: "Social Media Integrations",
+    title: "Science",
     description:
-      "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Molestiae, dicta.",
-    pro: 0,
+      "Biology, chemistry, and physics with visual experiments and practical applications.",
+    level: 0,
+    icon: "Flask",
   },
   {
-    title: "Email Marketing Integrations",
-    description: "Lorem dolor sit amet adipisicing.",
-    pro: 0,
+    title: "Languages",
+    description:
+      "Reading, writing, and grammar lessons in multiple languages with audio support.",
+    level: 0,
+    icon: "Languages",
   },
   {
-    title: "SEO Optimization",
-    description: "Lorem ipsum dolor sit amet consectetur.",
-    pro: 1,
+    title: "Computer Science",
+    description:
+      "Programming basics, computational thinking, and technology literacy.",
+    level: 1,
+    icon: "Code",
+  },
+  {
+    title: "History & Social Studies",
+    description:
+      "World history, geography, and cultural studies with interactive timelines.",
+    level: 0,
+    icon: "Globe",
+  },
+  {
+    title: "Arts & Music",
+    description:
+      "Creative expression through visual arts, music theory, and artistic techniques.",
+    level: 1,
+    icon: "Music",
   },
 ];
 
-export const ServicesSection = () => {
+export const SubjectsSection = () => {
   return (
-    <section id="services" className="container py-24 sm:py-32">
+    <section id="subjects" className="container py-24 sm:py-32 bg-muted/30">
       <h2 className="text-lg text-primary text-center mb-2 tracking-wider">
-        Services
+        Subjects
       </h2>
 
       <h2 className="text-3xl md:text-4xl text-center font-bold mb-4">
-        Grow Your Business
+        Comprehensive Curriculum
       </h2>
-      <h3 className="md:w-1/2 mx-auto text-xl text-center text-muted-foreground mb-8">
-        From marketing and sales to operations and strategy, we have the
-        expertise to help you achieve your goals.
+      <h3 className="md:w-3/5 mx-auto text-xl text-center text-muted-foreground mb-12">
+        Our platform offers a wide range of subjects designed to provide a
+        well-rounded education. Each subject includes lessons, exercises, and
+        assessments to support your learning journey.
       </h3>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-4 w-full lg:w-[60%] mx-auto">
-        {serviceList.map(({ title, description, pro }) => (
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full mx-auto">
+        {subjectList.map(({ title, description, level }) => (
           <Card
             key={title}
-            className="bg-muted/60 dark:bg-card h-full relative"
+            className="bg-background border border-border h-full relative hover:shadow-md transition-shadow"
           >
             <CardHeader>
-              <CardTitle>{title}</CardTitle>
-              <CardDescription>{description}</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                {/* Icon would go here */}
+                {title}
+              </CardTitle>
+              <CardDescription className="mt-2">{description}</CardDescription>
             </CardHeader>
             <Badge
-              data-pro={ProService.YES === pro}
+              data-advanced={SubjectLevel.ADVANCED === level}
               variant="secondary"
-              className="absolute -top-2 -right-3 data-[pro=false]:hidden"
+              className="absolute -top-2 -right-3 data-[advanced=false]:hidden bg-primary text-primary-foreground"
             >
-              PRO
+              ADVANCED
             </Badge>
           </Card>
         ))}
+      </div>
+
+      <div className="mt-16 text-center">
+        <p className="text-muted-foreground mb-6">
+          All subjects are available offline and include grade-appropriate
+          content for students aged 12-18
+        </p>
+        <Badge variant="outline" className="text-sm py-1 px-3">
+          <span className="text-primary font-medium">
+            New subjects added regularly
+          </span>
+        </Badge>
       </div>
     </section>
   );

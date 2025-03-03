@@ -8,28 +8,28 @@ interface BenefitsProps {
 
 const benefitList: BenefitsProps[] = [
   {
-    icon: "Blocks",
-    title: "Build Brand Trust",
+    icon: "BookOpen",
+    title: "Accessible Learning",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. A odio velit cum aliquam. Natus consectetur dolores.",
+      "Access quality education anytime, anywhere - even without internet. Our offline-first approach ensures learning never stops, regardless of connectivity challenges.",
   },
   {
-    icon: "LineChart",
-    title: "More Leads",
+    icon: "GraduationCap",
+    title: "Comprehensive Curriculum",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. A odio velit cum aliquam, natus consectetur.",
+      "Explore a full range of subjects from grades 7-12 including Mathematics, Science, Languages, and more - all aligned with educational standards.",
   },
   {
-    icon: "Wallet",
-    title: "Higher Conversions",
+    icon: "BarChart",
+    title: "Track Your Progress",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus consectetur. A odio velit cum aliquam",
+      "Monitor your learning journey with built-in assessments and progress tracking. Set goals, complete quizzes, and watch your knowledge grow over time.",
   },
   {
-    icon: "Sparkle",
-    title: "Test Marketing Ideas",
+    icon: "Users",
+    title: "Community Support",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. A odio velit cum aliquam. Natus consectetur dolores.",
+      "Join a supportive learning community where students can share resources, ask questions, and motivate each other to achieve educational goals.",
   },
 ];
 
@@ -41,11 +41,11 @@ export const BenefitsSection = () => {
           <h2 className="text-lg text-primary mb-2 tracking-wider">Benefits</h2>
 
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Education is Your Right
+            Education Without Barriers
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
             {
-              "In a world where learning is restricted, we bring school to you. Designed for girls in Afghanistan, this app offers subjects like Math, Science, and Pashto, helping you grow and prepare for a brighter future."
+              "In a world where learning opportunities can be limited, we bring education directly to you. Designed especially for students in challenging environments, our platform offers a complete curriculum covering essential subjects, helping you build knowledge and prepare for a brighter future."
             }
           </p>
         </div>
