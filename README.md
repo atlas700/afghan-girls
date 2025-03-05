@@ -35,7 +35,66 @@ EduAccess is an open-source educational platform designed to provide accessible 
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/eduaccess.git
-   cd eduaccess
    ```
+
+2. Install dependencies:
+   npm install
+
+# or
+
+yarn install
+#or pnpm install
+
+3. Set up environment variables:
+   cp .env.example .env.local
+
+4. Run the development server:
+   npm run dev
+
+# or
+
+yarn dev
+
+# or
+
+pnpm dev
+
+5. Open http://localhost:3000 in your browser to see the application.
+
+## 🛠️ Built With
+
+- Next.js - React framework for server-side rendering
+- Shadcn UI - UI component library
+- Drizzle ORM - TypeScript ORM
+- React PDF - PDF viewer component
+- Tailwind CSS - Utility-first CSS framework
+
+## 📱 Deployment
+
+The application can be deployed as a progressive web app (PWA) for offline access or as a standard web application. For detailed deployment instructions, see DEPLOYMENT.md .
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch ( git checkout -b feature/amazing-feature )
+3. Commit your changes ( git commit -m 'Add some amazing feature' )
+4. Push to the branch ( git push origin feature/amazing-feature )
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- Thanks to all contributors who have helped make this project possible
+- Special thanks to Education Without Borders for their support
+
+## 📞 Contact
+
+For questions or support, please reach out to support@eduaccess.org or open an issue on GitHub.
