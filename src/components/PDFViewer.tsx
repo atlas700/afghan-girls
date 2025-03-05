@@ -27,6 +27,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
+import { Card, CardContent } from "./ui/card";
 
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
@@ -45,6 +46,7 @@ export default function PdfViewer({ pdfPath }: PdfViewerProps) {
   const [overflow, setOverflow] = useState<"hidden" | "auto">("hidden");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
+  const viewerRef = useRef<HTMLDivElement>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [showTooltip, setShowTooltip] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -52,6 +54,8 @@ export default function PdfViewer({ pdfPath }: PdfViewerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [pageText, setPageText] = useState<string>("");
   const [userQuestion, setUserQuestion] = useState<string>("");
+  const [pageInputValue, setPageInputValue] = useState<string>("1");
+  const [selectedText, setSelectedText] = useState<string>("");
 
   // Restore last visited page
   useEffect(() => {
@@ -61,6 +65,7 @@ export default function PdfViewer({ pdfPath }: PdfViewerProps) {
         const pageNum = parseInt(savedPage, 10);
         if (pageNum >= 1 && pageNum <= numPages) {
           setPageNumber(pageNum);
+          setPageInputValue(pageNum.toString());
         }
       }
     }
@@ -70,6 +75,7 @@ export default function PdfViewer({ pdfPath }: PdfViewerProps) {
   useEffect(() => {
     if (pageNumber >= 1 && pageNumber <= numPages && numPages > 0) {
       localStorage.setItem(`lastPage_${pdfPath}`, pageNumber.toString());
+      setPageInputValue(pageNumber.toString());
     }
   }, [pageNumber, numPages, pdfPath]);
 
@@ -80,11 +86,51 @@ export default function PdfViewer({ pdfPath }: PdfViewerProps) {
   // Zoom controls
   const zoomIn = () => setZoomFactor((prev) => Math.min(prev + 0.2, 3.0));
   const zoomOut = () => setZoomFactor((prev) => Math.max(prev - 0.2, 0.5));
+  const resetZoom = () => setZoomFactor(1.0);
+
+  // Rotation controls
+  const [rotation, setRotation] = useState<number>(0);
+  const rotateClockwise = () => setRotation((prev) => (prev + 90) % 360);
 
   // Navigation
   const goToPrevPage = () => setPageNumber((prev) => Math.max(prev - 1, 1));
   const goToNextPage = () =>
     setPageNumber((prev) => Math.min(prev + 1, numPages));
+
+  const goToPage = (e: React.FormEvent) => {
+    e.preventDefault();
+    const pageNum = parseInt(pageInputValue, 10);
+    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= numPages) {
+      setPageNumber(pageNum);
+    } else {
+      setPageInputValue(pageNumber.toString());
+    }
+  };
+
+  // Fullscreen toggle
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      viewerRef.current?.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+      setFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setFullscreen(false);
+    }
+  };
+
+  // Listen for fullscreen change
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
 
   // Save image of current page
   const saveImage = () => {
@@ -99,33 +145,30 @@ export default function PdfViewer({ pdfPath }: PdfViewerProps) {
 
   // Copy selected text
   const copyText = () => {
-    const selection = window.getSelection();
-    if (selection && selection.toString()) {
-      navigator.clipboard.writeText(selection.toString());
-      alert("Selected text copied to clipboard");
+    if (selectedText) {
+      navigator.clipboard.writeText(selectedText);
+      // Show a toast or notification here
     } else {
-      alert("Please select text or a table to copy");
+      // Show a toast or notification here
     }
-  };
-
-  // Get selected text
-  const getSelectedText = () => {
-    const selection = window.getSelection();
-    return selection ? selection.toString().trim() : "";
   };
 
   // Extract text and natural dimensions from the current page
   const onRenderSuccess = async (page: any) => {
-    const textContent = await page.getTextContent();
-    const pageTextContent = textContent.items
-      .map((item: any) => item.str)
-      .join(" ")
-      .trim();
-    setPageText(pageTextContent);
+    try {
+      const textContent = await page.getTextContent();
+      const pageTextContent = textContent.items
+        .map((item: any) => item.str)
+        .join(" ")
+        .trim();
+      setPageText(pageTextContent);
 
-    const viewport = page.getViewport({ scale: 1 });
-    setNaturalWidth(viewport.width);
-    setNaturalHeight(viewport.height);
+      const viewport = page.getViewport({ scale: 1, rotation });
+      setNaturalWidth(viewport.width);
+      setNaturalHeight(viewport.height);
+    } catch (error) {
+      console.error("Error extracting text content:", error);
+    }
   };
 
   // Calculate scale and overflow based on zoom
@@ -133,22 +176,28 @@ export default function PdfViewer({ pdfPath }: PdfViewerProps) {
     if (pdfContainerRef.current && naturalWidth > 0 && naturalHeight > 0) {
       const containerWidth = pdfContainerRef.current.clientWidth;
       const containerHeight = pdfContainerRef.current.clientHeight;
-      const scaleWidth = containerWidth / naturalWidth;
-      const scaleHeight = containerHeight / naturalHeight;
-      const baseScale = Math.min(scaleWidth, scaleHeight); // Fit within both dimensions
+
+      // Account for rotation when calculating dimensions
+      const isLandscape = rotation === 90 || rotation === 270;
+      const contentWidth = isLandscape ? naturalHeight : naturalWidth;
+      const contentHeight = isLandscape ? naturalWidth : naturalHeight;
+
+      const scaleWidth = containerWidth / contentWidth;
+      const scaleHeight = containerHeight / contentHeight;
+      const baseScale = Math.min(scaleWidth, scaleHeight, 1.0); // Limit initial scale to 1.0 max
       const finalScale = baseScale * zoomFactor;
       setScale(finalScale);
 
       // Determine if scrollbars are needed
-      const scaledWidth = naturalWidth * finalScale;
-      const scaledHeight = naturalHeight * finalScale;
+      const scaledWidth = contentWidth * finalScale;
+      const scaledHeight = contentHeight * finalScale;
       if (scaledWidth > containerWidth || scaledHeight > containerHeight) {
-        setOverflow("auto"); // Enable scrollbars when zoomed beyond fit
+        setOverflow("auto");
       } else {
-        setOverflow("hidden"); // Hide scrollbars when within bounds
+        setOverflow("hidden");
       }
     }
-  }, [naturalWidth, naturalHeight, pageNumber, pdfPath, zoomFactor]);
+  }, [naturalWidth, naturalHeight, pageNumber, pdfPath, zoomFactor, rotation]);
 
   // Handle window resize
   useEffect(() => {
@@ -156,14 +205,20 @@ export default function PdfViewer({ pdfPath }: PdfViewerProps) {
       if (pdfContainerRef.current && naturalWidth > 0 && naturalHeight > 0) {
         const containerWidth = pdfContainerRef.current.clientWidth;
         const containerHeight = pdfContainerRef.current.clientHeight;
-        const scaleWidth = containerWidth / naturalWidth;
-        const scaleHeight = containerHeight / naturalHeight;
-        const baseScale = Math.min(scaleWidth, scaleHeight);
+
+        // Account for rotation
+        const isLandscape = rotation === 90 || rotation === 270;
+        const contentWidth = isLandscape ? naturalHeight : naturalWidth;
+        const contentHeight = isLandscape ? naturalWidth : naturalHeight;
+
+        const scaleWidth = containerWidth / contentWidth;
+        const scaleHeight = containerHeight / contentHeight;
+        const baseScale = Math.min(scaleWidth, scaleHeight, 1.0);
         const finalScale = baseScale * zoomFactor;
         setScale(finalScale);
 
-        const scaledWidth = naturalWidth * finalScale;
-        const scaledHeight = naturalHeight * finalScale;
+        const scaledWidth = contentWidth * finalScale;
+        const scaledHeight = contentHeight * finalScale;
         if (scaledWidth > containerWidth || scaledHeight > containerHeight) {
           setOverflow("auto");
         } else {
@@ -173,7 +228,7 @@ export default function PdfViewer({ pdfPath }: PdfViewerProps) {
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [naturalWidth, naturalHeight, zoomFactor]);
+  }, [naturalWidth, naturalHeight, zoomFactor, rotation]);
 
   // Determine text direction based on script
   const getTextDirection = (text: string) => {
@@ -184,19 +239,68 @@ export default function PdfViewer({ pdfPath }: PdfViewerProps) {
     return charCode >= 0x0600 && charCode <= 0x06ff ? "rtl" : "ltr";
   };
 
-  // Debounce helper to limit frequent calls
-  const debounce = (func: (...args: any[]) => void, wait: number) => {
-    let timeout: NodeJS.Timeout;
-    return (...args: any[]) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func(...args), wait);
+  // Improved text selection handling
+  useEffect(() => {
+    const handleMouseUp = () => {
+      const selection = window.getSelection();
+      if (selection && selection.toString().trim()) {
+        setSelectedText(selection.toString().trim());
+
+        // Only show tooltip if selection is within PDF container
+        if (pdfContainerRef.current && selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          if (pdfContainerRef.current.contains(range.commonAncestorContainer)) {
+            const rects = range.getClientRects();
+            if (rects.length > 0) {
+              const rect = rects[rects.length - 1]; // Use last rect for RTL support
+              const containerRect =
+                pdfContainerRef.current.getBoundingClientRect();
+
+              setTooltipPosition({
+                x:
+                  rect.right -
+                  containerRect.left +
+                  pdfContainerRef.current.scrollLeft -
+                  80,
+                y:
+                  rect.bottom -
+                  containerRect.top +
+                  pdfContainerRef.current.scrollTop +
+                  10,
+              });
+              setShowTooltip(true);
+            }
+          }
+        }
+      } else {
+        setSelectedText("");
+      }
     };
-  };
+
+    // Hide tooltip when clicking elsewhere
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        showTooltip &&
+        pdfContainerRef.current &&
+        !pdfContainerRef.current.contains(e.target as Node)
+      ) {
+        setShowTooltip(false);
+      }
+    };
+
+    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [showTooltip]);
 
   // Ask AI using Ollama local LLM in streaming mode
   const handleAskAI = async (question: string) => {
     if (!question) {
-      alert("Please select text or enter a question to ask the AI.");
+      // Show a toast or notification here
       return;
     }
 
@@ -238,10 +342,14 @@ export default function PdfViewer({ pdfPath }: PdfViewerProps) {
         const lines = chunk.split("\n");
         for (const line of lines) {
           if (line.trim()) {
-            const parsed = JSON.parse(line);
-            if (parsed.response) {
-              accumulatedResponse += parsed.response;
-              setAiResponse(accumulatedResponse);
+            try {
+              const parsed = JSON.parse(line);
+              if (parsed.response) {
+                accumulatedResponse += parsed.response;
+                setAiResponse(accumulatedResponse);
+              }
+            } catch (e) {
+              console.error("Error parsing JSON:", e);
             }
           }
         }
@@ -258,132 +366,89 @@ export default function PdfViewer({ pdfPath }: PdfViewerProps) {
     }
   };
 
-  // Detect text selection with RTL support
-  useEffect(() => {
-    const handleSelectionChange = debounce(() => {
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        const container = pdfContainerRef.current;
-        if (container && container.contains(range.commonAncestorContainer)) {
-          const selectedText = selection.toString().trim();
-          if (selectedText) {
-            const rects = range.getClientRects();
-            if (rects.length > 0) {
-              const rect = rects[0];
-              const containerRect = container.getBoundingClientRect();
-              const isRTL =
-                window.getComputedStyle(container).direction === "rtl";
-              const xPosition = isRTL
-                ? rect.right - containerRect.left + container.scrollLeft - 80
-                : rect.left - containerRect.left + container.scrollLeft;
-              setTooltipPosition({
-                x: xPosition,
-                y: rect.top - containerRect.top + container.scrollTop - 40,
-              });
-              setShowTooltip(true);
-            } else {
-              setShowTooltip(false);
-            }
-          } else {
-            setShowTooltip(false);
-          }
-        } else {
-          setShowTooltip(false);
-        }
-      } else {
-        setShowTooltip(false);
-      }
-    }, 100);
-
-    document.addEventListener("selectionchange", handleSelectionChange);
-    return () => {
-      document.removeEventListener("selectionchange", handleSelectionChange);
-    };
-  }, []);
-
   return (
-    <div className="flex flex-col items-center bg-background" dir="rtl">
+    <div
+      className="flex flex-col items-center bg-background h-screen"
+      dir="rtl"
+      ref={viewerRef}
+    >
       {/* Toggle Button for Sidebar */}
       <Button
         variant="outline"
         size="icon"
-        className="fixed bottom-4 right-4 z-50"
+        className="fixed bottom-4 right-4 z-50 rounded-full shadow-md hover:shadow-lg"
         onClick={() => setSidebarOpen(!sidebarOpen)}
       >
-        <MessageSquare className="h-6 w-6" />
+        <MessageSquare className="h-5 w-5" />
       </Button>
 
       {/* Controls Bar - Fixed at the top */}
-      <div
-        className="sticky top-4 z-50 bg-card p-2 flex flex-col sm:flex-row justify-between items-center shadow-md gap-2"
-        dir="ltr"
-      >
-        <div className="flex items-center gap-1 md:gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={zoomOut}
-                  disabled={zoomFactor <= 0.5}
-                >
-                  <ZoomOut className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Zoom Out</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <span className="text-sm text-muted-foreground">
-            {Math.round(scale * 100)}%
-          </span>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={zoomIn}
-                  disabled={zoomFactor >= 3.0}
-                >
-                  <ZoomIn className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Zoom In</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={goToPrevPage}
-            disabled={pageNumber <= 1}
+      <Card className="sticky top-4 z-50 w-[95%] mx-auto shadow-md mb-4">
+        <CardContent className="p-3">
+          <div
+            className="flex flex-wrap justify-between items-center gap-2"
+            dir="ltr"
           >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Page {pageNumber} of {numPages}
-          </span>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={goToNextPage}
-            disabled={pageNumber >= numPages}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size={"sm"} onClick={saveImage}>
-            <ImageIcon className="h-4 w-4 mr-2" /> Save Image
-          </Button>
-          <Button variant="outline" size={"sm"} onClick={copyText}>
-            <Copy className="h-4 w-4 mr-2" /> Copy Text
-          </Button>
-        </div>
-      </div>
+            {/* Zoom Controls */}
+            <div className="flex items-center gap-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={zoomOut}
+                      disabled={zoomFactor <= 0.5}
+                      className="h-8 w-8"
+                    >
+                      <ZoomOut className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Zoom Out</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={zoomIn}
+                disabled={zoomFactor >= 3.0}
+              >
+                <ZoomIn className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={goToPrevPage}
+                disabled={pageNumber <= 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Page {pageNumber} of {numPages}
+              </span>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={goToNextPage}
+                disabled={pageNumber >= numPages}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size={"sm"} onClick={saveImage}>
+                <ImageIcon className="h-4 w-4 mr-2" /> Save Image
+              </Button>
+              <Button variant="outline" size={"sm"} onClick={copyText}>
+                <Copy className="h-4 w-4 mr-2" /> Copy Text
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* PDF Display Area */}
       <div

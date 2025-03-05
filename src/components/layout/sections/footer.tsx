@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { ChevronsDownIcon } from "lucide-react";
+import { BookOpen, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 export const FooterSection = () => {
@@ -9,29 +9,33 @@ export const FooterSection = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-x-12 gap-y-8">
           <div className="col-span-full xl:col-span-2">
             <Link href="#" className="flex font-bold items-center">
-              <ChevronsDownIcon className="w-9 h-9 mr-2 bg-gradient-to-tr from-primary via-primary/70 to-primary rounded-lg border border-secondary" />
+              <BookOpen className="w-9 h-9 mr-2 bg-gradient-to-tr from-primary via-primary/70 to-primary p-1.5 rounded-lg border border-secondary" />
 
-              <h3 className="text-2xl">Shadcn</h3>
+              <h3 className="text-2xl">EduAccess</h3>
             </Link>
+            <p className="mt-4 text-muted-foreground">
+              Providing accessible education for all students, regardless of
+              connectivity challenges.
+            </p>
           </div>
 
           <div className="flex flex-col gap-2">
-            <h3 className="font-bold text-lg">Contact</h3>
+            <h3 className="font-bold text-lg">Resources</h3>
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Github
+                Lessons Library
               </Link>
             </div>
 
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Twitter
+                Study Guides
               </Link>
             </div>
 
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Instagram
+                Practice Tests
               </Link>
             </div>
           </div>
@@ -40,79 +44,85 @@ export const FooterSection = () => {
             <h3 className="font-bold text-lg">Platforms</h3>
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                iOS
+                iOS App
               </Link>
             </div>
 
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Android
+                Android App
               </Link>
             </div>
 
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Web
+                Web Version
               </Link>
             </div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <h3 className="font-bold text-lg">Help</h3>
+            <h3 className="font-bold text-lg">Support</h3>
             <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
+              <Link href="#contact" className="opacity-60 hover:opacity-100">
                 Contact Us
               </Link>
             </div>
 
             <div>
-              <Link href="#" className="opacity-60 hover:opacity-100">
+              <Link href="#faq" className="opacity-60 hover:opacity-100">
                 FAQ
               </Link>
             </div>
 
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Feedback
+                Technical Help
               </Link>
             </div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <h3 className="font-bold text-lg">Socials</h3>
+            <h3 className="font-bold text-lg">About</h3>
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Twitch
+                Our Mission
               </Link>
             </div>
 
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Discord
+                Privacy Policy
               </Link>
             </div>
 
             <div>
               <Link href="#" className="opacity-60 hover:opacity-100">
-                Dribbble
+                Terms of Use
               </Link>
             </div>
           </div>
         </div>
 
-        <Separator className="my-6" />
-        <section className="">
-          <h3 className="">
-            &copy; 2024 Designed and developed by
+        <Separator className="my-8" />
+
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <h3 className="text-sm text-muted-foreground">
+            &copy; 2024 EduAccess. All rights reserved.
+          </h3>
+
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-muted-foreground">Supported by</span>
             <Link
               target="_blank"
-              href="https://github.com/leoMirandaa"
-              className="text-primary transition-all border-primary hover:border-b-2 ml-1"
+              href="#"
+              className="flex items-center gap-1 text-primary transition-all hover:underline"
             >
-              Leo Miranda
+              Education Without Borders
+              <ExternalLink className="h-3 w-3" />
             </Link>
-          </h3>
-        </section>
+          </div>
+        </div>
       </div>
     </footer>
   );
